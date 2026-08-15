@@ -1,0 +1,38 @@
+{
+  "test_essay_ids": [
+    "mix_57436d7308",
+    "mix_8ef912f785",
+    "mix_e735be096f",
+    "mix_f24e746f63",
+    "pastiche_01",
+    "pastiche_05",
+    "seed_h_04",
+    "seed_h_08",
+    "seed_h_09"
+  ],
+  "train_essay_ids": [
+    "mix_1b15de8298",
+    "mix_20b357fa3e",
+    "mix_23f4669e3b",
+    "mix_89bb8561c5",
+    "mix_99445197ad",
+    "mix_a075ec8626",
+    "mix_a51c82af97",
+    "mix_f4529777f9",
+    "pastiche_02",
+    "pastiche_03",
+    "pastiche_04",
+    "pastiche_06",
+    "pastiche_07",
+    "pastiche_08",
+    "seed_h_01",
+    "seed_h_02",
+    "seed_h_03",
+    "seed_h_05",
+    "seed_h_06",
+    "seed_h_07",
+    "seed_h_10",
+    "seed_h_11",
+    "seed_h_12"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "nll": -0.0956833171651366,
+  "nll_z": -0.11247926755090877,
+  "word_count": 0.09171140673222221,
+  "word_count_z": 0.17004204132293702,
+  "window_ttr": 0.43801575830020595,
+  "transition_count": 1.1153660453852718,
+  "transition_density": 0.6100644034122232,
+  "embed_sim_prev": 0.21867771227955934,
+  "embed_sim_next": 0.22364255611047193,
+  "fk_grade": 0.5176277123411152,
+  "fk_z": -0.14932772433590438,
+  "pos_local_entropy": -0.2092169876430923,
+  "essay_burstiness": -0.4868939622729585,
+  "essay_len_mean": -0.0067567250665747465,
+  "essay_len_var": -0.2740453165821115,
+  "essay_ttr": 0.3458780162783998,
+  "essay_fw_cosine": -0.42223044220261624,
+  "essay_pos_entropy": -0.28093156502796324,
+  "essay_transition_density": 1.8047036881236298,
+  "essay_embed_coherence_mean": -0.46159469023431005,
+  "essay_fk_var": -0.4885624245304246
+}

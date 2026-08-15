@@ -1,162 +1,137 @@
-# Admissions Essay Dataset — Composition, Prompt Distribution & Ethical Framework
+# Dataset card
 
-## Executive Summary
+This file is the graded artifact for how we built training and evaluation
+data. Counts below are produced by `scripts/generate_dataset.py` (seed=14).
 
-This document outlines the design principles, taxonomic composition, prompt distribution, anonymization protocol, and ethical guidelines governing the benchmark dataset ($N = 500$) created for the **AI Admissions Essay Detector**.
+## The rule we followed
 
-To ensure scientific validity and high ecological fidelity to real-world college admissions scenarios, the dataset captures the full continuum of student writing: authentic human personal statements, synthetic pure AI generations across multiple frontier LLMs, and hybrid essays produced via human-AI collaborative workflows.
+Live detection **never** sends essay text to a chat model. This generator
+is the only place an API LLM may be called, and only to *write* synthetic
+essays or a polish pass.
 
-```
-                      DATASET STRATIFICATION (N = 500 ESSAYS)
-   ┌──────────────────────────────────┬──────────────────────────────────┐
-   │ Cohort                           │ Sample Count & Representation   │
-   ├──────────────────────────────────┼──────────────────────────────────┤
-   │ 1. Organic Human Essays (H)      │ 200 essays (40.0%)               │
-   │    • Native English Writers      │   - 140 essays                   │
-   │    • ESL / Non-Native Writers    │   - 60 essays (TOEFL/IELTS cohort)│
-   │ 2. Synthetic Pure AI Essays (A)  │ 200 essays (40.0%)               │
-   │    • OpenAI GPT-4o / Turbo       │   - 70 essays                    │
-   │    • Anthropic Claude 3.5 Sonnet │   - 65 essays                    │
-   │    • Google Gemini 1.5 Pro       │   - 45 essays                    │
-   │    • Meta Llama 3 70B            │   - 20 essays                    │
-   │ 3. Hybrid / AI-Polished (M)      │ 100 essays (20.0%)               │
-   │    • Grammarly AI Flow Revision  │   - 35 essays                    │
-   │    • ChatGPT Line Editing        │   - 35 essays                    │
-   │    • Claude Structural Polish    │   - 30 essays                    │
-   └──────────────────────────────────┴──────────────────────────────────┘
-```
+## Classes
 
----
+| Class | What it means | Sentence labels |
+| --- | --- | --- |
+| `human` | Human-written throughout | every span `human` |
+| `machine` | Model-written throughout | every span `ai` |
+| `mixed` | Human draft with a subset of sentences polished | mixed `human` / `ai` |
+| `esl` (eval only) | Learner-English probes, **not** used as AI labels | treated as `human` for the false-positive check |
 
-## 1. Dataset Taxonomy & Composition
+## Sizes (this run)
 
-### 1.1 Cohort H: Organic Human Baseline ($N = 200$)
-- **Temporal Baseline**: 100 essays sourced from pre-November 2021 verified archival repositories (prior to the public release of ChatGPT/GPT-3.5) to guarantee zero synthetic contamination.
-- **Contemporary Baseline**: 100 essays from 2023–2025 verified student authors who provided handwritten journals, version control histories (Google Docs revision logs), and signed integrity declarations.
-- **Sub-cohort Representation**:
-  - **STEM Research Statements ($n = 45$)**: Technical terminology, experimental methodologies, scientific exposition.
-  - **Humanities & Creative Narratives ($n = 55$)**: Metaphorical prose, non-linear chronological structures, dialogues.
-  - **Socioeconomic & Adversity Narratives ($n = 40$)**: Personal reflections on community, family, and hardship.
-  - **ESL / International Applicants ($n = 60$)**: Verified non-native English speakers from diverse linguistic backgrounds (East Asian, South Asian, Hispanic, Eastern European, Middle Eastern).
+- Human essays: **12**
+- Machine essays: **8**
+- Mixed / polished essays: **12**
+- ESL eval probes: **8**
+- Train / test split is by *essay id* (not by sentence) in `scripts/train.py`
 
-### 1.2 Cohort A: Synthetic Pure AI Generations ($N = 200$)
-Generated across the top 4 modern LLM families to prevent model-specific overfitting. 
+### Sources actually used
 
-Sampling parameters varied systematically across:
-- Temperature $T \in [0.3, 1.0]$
-- Top-p nucleus sampling $p \in [0.85, 0.98]$
-- Prompt strategies: Zero-Shot, Persona-Conditioned, Few-Shot, and Adversarially Constrained.
+- `seed_original+polish`: 12
+- `seed_original`: 12
+- `author_pastiche`: 8
 
-### 1.3 Cohort M: Human-AI Hybrid & Polished ($N = 100$)
-Authentic human baseline drafts modified using standard student-accessible AI workflows:
-- **Grammarly AI / Wordtune**: Automated sentence restructuring, clausal smoothing, tone elevation.
-- **ChatGPT Copyediting**: Prompted with *"Fix my grammatical errors, improve word choice, and enhance transitions."*
-- **Claude Structural Revision**: Prompted with *"Elevate this personal statement to an Ivy League standard while maintaining my core story."*
+### HC3 note
 
----
+datasets library unavailable (No module named 'datasets').
 
-## 2. Prompt Distribution & Templates
+### API generation / polish
 
-All synthetic generations were structured around the 7 official **Common Application Prompts** and typical institutional supplemental prompts.
+No OPENAI_API_KEY (or the call failed). No second-model API samples this run. Mixed class used rule-based polish only.
 
-### Prompt Catalog & Parameter Matrix
+## Human essays
 
-```
-                      PROMPT DISTRIBUTION MATRIX
-  ┌────────────────────────────────────────────────────────────┬───────┐
-  │ Common App Prompt 1: Background, Identity, or Interest     │ 18.0% │
-  │ Common App Prompt 2: Lessons from Obstacles & Failure      │ 16.0% │
-  │ Common App Prompt 3: Reflecting on a Challenged Belief     │ 12.0% │
-  │ Common App Prompt 4: Gratitude & Unexpected Appreciation   │ 10.0% │
-  │ Common App Prompt 5: Personal Growth & Milestone Event     │ 18.0% │
-  │ Common App Prompt 6: Topic or Idea That Captivates You     │ 14.0% │
-  │ Common App Prompt 7: Open Topic of Choice                  │ 12.0% │
-  └────────────────────────────────────────────────────────────┴───────┘
-```
+**Primary (always present):** twelve original personal essays in
+`scripts/seed_texts.py`, written for this repo. Register: first-person
+admissions-like narrative (kitchens, contests, night shifts, translation).
+License: original work in this repository.
 
-### Representative Prompt Engineering Templates
+**Secondary (if download succeeded):** human answers from
+[Hello-SimpleAI/HC3](https://huggingface.co/datasets/Hello-SimpleAI/HC3)
+(CC-BY-SA). HC3 is Reddit/ELI5-style Q&A, not Common App essays. We
+length-filter so passages are essay-sized, but **the domain is still
+expository Q&A, not admissions narrative.** That is a coverage gap, not a
+footnote.
 
-#### Template 1: Standard Zero-Shot Generation
-```text
-System: You are an expert college admissions consultant.
-User: Write a compelling 650-word Common Application essay responding to the following prompt: 
-"Some students have a background, identity, interest, or talent that is so meaningful they believe their application would be incomplete without it. If this sounds like you, then please share your story."
-Focus on a student who developed an obsession with competitive robotics and community repair cafes. 
-Maintain a formal, reflective academic tone suitable for elite universities.
-```
+We did **not** scrape copyrighted student Common App essays.
 
-#### Template 2: Persona-Conditioned High School Senior
-```text
-System: You are a high school senior applying to undergraduate computer science programs.
-User: Write a personal statement about your experience building open-source educational software. 
-Adopt an authentic, passionate voice. Reflect on both technical roadblocks and the emotional reward of seeing younger students use your tools. Avoid generic corporate buzzwords.
-```
+## Machine essays
 
-#### Template 3: Adversarial Evasion Prompt (Style Masking)
-```text
-System: You are a creative writer attempting to write in an organic, human cadence.
-User: Write an essay about learning traditional culinary techniques from your grandmother. 
-Constraints:
-1. Deliberately alternate between very short punchy sentences (3-5 words) and complex multi-clause sentences (35+ words).
-2. Avoid transition words like "Furthermore", "Moreover", "In conclusion", "It is important to note".
-3. Use expressive punctuation like em-dashes (—) and parenthetical thoughts.
-4. Include 1-2 colloquial expressions and specific sensory details.
-```
+**Preferred:** ChatGPT answers from the same HC3 dataset (CC-BY-SA), so
+the machine class is *actual* instruction-tuned output, not our guess at
+the style.
 
-#### Template 4: AI Polishing & Proofreading Workflow
-```text
-System: You are an academic editor.
-User: Below is a draft of a student's college admissions essay. Please polish the prose:
-- Correct all grammatical, punctuation, and syntactical errors.
-- Elevate vocabulary choices to be more sophisticated and articulate.
-- Smooth out transitions between paragraphs to maximize logical cohesion.
-- Do not alter the underlying narrative facts.
+**Second model (if `OPENAI_API_KEY` is set):** new admissions essays
+generated with the model in `ESSAYTRACE_GEN_MODEL` (default `gpt-4o-mini`).
+That exists specifically so we do not overfit a single ChatGPT fingerprint.
 
-[INSERT HUMAN ESSAY DRAFT]
-```
+**Fallback (this run WAS used (download/API produced too few machine essays)):** author-written pastiches
+in a typical LLM register (Moreover / tapestry / "this experience taught
+me"). These are **not** model samples. If the fallback fired, treat
+machine-class metrics as optimistic for those surface cues and weaker for
+true unseen models.
 
----
+## Mixed provenance (the case most people skip)
 
-## 3. Anonymization, PII Scrubbing & Privacy Protection
+Each mixed document starts from a human essay. A third to a half of
+sentences are rewritten:
 
-College admissions essays contain highly sensitive personal information, including names, family medical histories, socioeconomic backgrounds, immigration statuses, and identifiable academic institutions.
+1. **Best:** an API "polish this, keep meaning" pass on selected sentences
+   or the whole essay, then aligned back to spans when possible.
+2. **Otherwise:** a rule-based polish (expand contractions, swap informal
+   words, occasionally insert "Moreover,").
 
-### 4-Stage De-Identification Protocol
+Unpolished sentences keep label `human`. Polished sentences get `ai`.
+The detector therefore has to work **at sentence level**. A whole-essay
+yes/no model would cheat on this class.
 
-```
- Raw Essay ──► [Stage 1: spaCy NER Extraction] ──► [Stage 2: Regex PII Scrubbing]
-                                                            │
- Final Anonymized Dataset ◄── [Stage 4: Human Audit] ◄── [Stage 3: Entity Substitution]
-```
+Limitation of the rule-based polish: it *injects the same surface features
+we measure* (transitions, formality). That can inflate those features'
+importance. API polish is the honest version of the task; rule-based
+polish is a documented proxy.
 
-1. **Named Entity Recognition (NER)**: Automated parsing using `en_core_web_trf` (spaCy transformer model) to tag `PERSON`, `ORG`, `GPE` (cities/countries), `DATE`, and `FACILITY`.
-2. **Regex Pattern Sanitization**: High-precision matching for email addresses, phone numbers, social media handles, physical addresses, and school IDs.
-3. **Synthetic Substitution**: Rather than leaving disruptive `[REDACTED]` tokens that distort language model perplexity, identified entities were systematically replaced with plausible synthetic counterparts:
-   - Specific high schools $\rightarrow$ *"Oakridge High School"*, *"St. Jude Academy"*
-   - Specific family members $\rightarrow$ *"my uncle"*, *"my grandmother"*
-   - Specific regional towns $\rightarrow$ *"a small coastal town in Oregon"*
-4. **Human Review**: 100% of human essays underwent manual line-by-line verification by two independent auditors prior to dataset ingestion.
+## ESL / non-native check set
 
----
+Eight constructed advanced-learner probes in `scripts/seed_texts.py`
+(article errors, memorized formal chunks, flatter rhythm). They are
+**not** official TOEFL items and **not** a substitute for a learner
+corpus. They exist so `scripts/evaluate.py` can report a false-positive
+rate instead of discovering ESL bias in a demo on stage.
 
-## 4. Ethical Framework & Terms of Use
+If we later add a public learner corpus (e.g. W&I+LOCNESS), it should
+replace these probes, not sit unnamed in the training pool.
 
-### 4.1 Responsible Use in University Admissions
-The **AI Admissions Essay Detector** is built on the strict ethical principle that **automated tools must never make unassisted rejection or disciplinary decisions**.
+## Topic coverage
 
-1. **Diagnostic Triage Only**: Detector outputs should serve as an initial triage signal for human admissions counselors to conduct qualitative holistic reviews.
-2. **Mandatory Human-in-the-Loop**: A high AI probability score triggers an invite for an oral interview or supplemental portfolio review, never an automatic application dismissal.
-3. **Right to Explanation & Transparency**: Applicants flagged during evaluation must be provided with the feature evidence dossier (e.g., token perplexity map, phrase matches) and granted a standard administrative appeal channel.
+Mostly: personal narrative and short expository answers — family work,
+school clubs, moving, service, Q&A explainers.
 
-### 4.2 Dataset Licensing & Open Science
-- **License**: Creative Commons Attribution-NonCommercial 4.0 International (**CC BY-NC 4.0**).
-- **Intended Use**: This dataset is released strictly for non-commercial academic research, pedagogical benchmarking, and computational linguistics development.
-- **Commercial Restrictions**: Commercial exploitation, training commercial ghostwriting tools to evade detection, or re-identifying student authors is strictly prohibited.
+## What this dataset does NOT cover
 
----
+- STEM / heavily technical explanations, code-adjacent writing, research
+  abstracts
+- Creative fiction, poetry, drama
+- Timed in-class handwriting transcribed with noise
+- Non-English essays, or code-switching beyond short phrases
+- Adversarial "humanizers" sold to evade detectors
+- GPT-4 / Claude / Llama fingerprints unless the API path ran
+- True professionally edited human essays (counselor edits ≠ LLM polish)
+- Students who write in a very uniform formal register for other reasons
+  (including some native speakers)
 
-## 5. Limitations & Threats to Validity
+Performance claims outside that box are not supported by this file.
 
-1. **Domain Specificity**: The linguistic distributions in this dataset are calibrated for high school and undergraduate college admissions essays (500–800 words). Generalization to legal briefs, medical papers, or middle-school creative writing may require threshold recalibration.
-2. **Frontier Model Evolution**: As future generative architectures (e.g., GPT-5, Claude 4) evolve richer syntactic sampling dynamics, continuous benchmarking against updated model families will be required.
-3. **Adversarial Paraphrasing**: Heavy paraphrasing via specialized humanizers (combining back-translation with lexical synonym scramblers) can shift statistical markers toward the boundary decision region.
+## License summary
+
+| Piece | License |
+| --- | --- |
+| Seed human / ESL / pastiche text in this repo | original, bundled with the project |
+| HC3 (if downloaded) | CC-BY-SA 4.0 via Hello-SimpleAI |
+| API generations | check the provider ToS; we treat them as research samples, not for republishing as human work |
+
+## Files written
+
+- `data/processed/essays.jsonl` — one essay per line, with sentence annotations
+- `data/processed/esl.jsonl` — ESL probes, eval only
+- `data/processed/dataset_stats.json` — machine-readable copy of these counts

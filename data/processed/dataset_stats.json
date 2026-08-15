@@ -1,0 +1,16 @@
+{
+  "n_human": 12,
+  "n_machine": 8,
+  "n_mixed": 12,
+  "n_esl": 8,
+  "n_total_trainpool": 32,
+  "sources": {
+    "seed_original+polish": 12,
+    "seed_original": 12,
+    "author_pastiche": 8
+  },
+  "hc3_note": "datasets library unavailable (No module named 'datasets').",
+  "api_note": "No OPENAI_API_KEY (or the call failed). No second-model API samples this run. Mixed class used rule-based polish only.",
+  "used_pastiche": "WAS used (download/API produced too few machine essays)",
+  "source_block": "- `seed_original+polish`: 12\n- `seed_original`: 12\n- `author_pastiche`: 8"
+}
